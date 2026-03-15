@@ -30,7 +30,10 @@ std::vector<uchar> BM4D::run_first_step() {
   run_dct3d(d_gathered4dstack, gather_stacks_sum, params.patch_size, d_prop);
 
   // Do WHT in 4th dim + Hard Thresholding + IWHT
-  float *d_group_weights;
+  if (d_group_weights != nullptr) {
+    checkCudaErrors(cudaFree(d_group_weights));
+    d_group_weights = nullptr;
+  }
   run_wht_ht_iwht(d_gathered4dstack, gather_stacks_sum, params.patch_size, d_nstacks, tr_size,
                   d_group_weights, params, d_prop);
 
