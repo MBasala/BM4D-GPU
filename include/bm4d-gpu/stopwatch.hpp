@@ -17,7 +17,7 @@
  */
 class Stopwatch {
  private:
-  typedef unsigned long long ticks_t;
+  using ticks_t = unsigned long long;
 
   ticks_t mStartTime;
   double mInterval;
@@ -53,15 +53,15 @@ class Stopwatch {
 
  public:
   /**
-   * \brief Create new stopwatch. The stopwatch are not running when created.
+   * \brief Create new stopwatch. The stopwatch is not running when created.
    */
-  Stopwatch() : mTiming(false), mInterval(0.0) {}
+  Stopwatch() : mInterval(0.0), mTiming(false) {}
 
   /**
    * \brief Create new stopwatch (and optionaly start it).
    * \param start If start is true, the stapwatch are started immediately.
    */
-  Stopwatch(bool start) {
+  explicit Stopwatch(bool start) {
     if (start) this->start();
   }
 
