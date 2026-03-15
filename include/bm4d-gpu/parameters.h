@@ -9,6 +9,21 @@
 
 namespace bm4d_gpu {
 
+// ---------------------------------------------------------------------------
+// DeviceParams: lightweight POD struct safe for CUDA kernel arguments.
+// Contains only the numeric fields needed on the GPU.  No std::string,
+// no vtable, no heap pointers — just plain scalars that map 1:1 into the
+// kernel argument constant-memory region (~4 KB limit for all args combined).
+// ---------------------------------------------------------------------------
+struct DeviceParams {
+  float sim_th;
+  float hard_th;
+  int window_size;
+  int step_size;
+  int patch_size;
+  int maxN;
+};
+
 struct Parameters {
   std::string input_filename;
   std::string output_filename;
@@ -23,12 +38,15 @@ struct Parameters {
   int gpu_device = -1;
 
   // Fixed in current implementation
-  // TODO: check what's up here
   const int patch_size{4};  // Patch size
   const int maxN{16};       // Maximal number of the patches in one group
 
+  /// Convert to the GPU-safe POD struct for kernel launches.
+  DeviceParams to_device() const {
+    return DeviceParams{sim_th, hard_th, window_size, step_size, patch_size, maxN};
+  }
+
   bool parse(const int argc, const char *const *const argv) {
-    // TODO: use boost?
     if (argc == 1) {
       return false;
     }
