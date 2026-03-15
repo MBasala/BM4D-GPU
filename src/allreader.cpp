@@ -17,10 +17,10 @@ void eat_comment(std::ifstream &f) {
 bool readPGM(const std::string &filename, std::vector<unsigned char> &image, int &width,
              int &height) {
   std::ifstream File(filename.c_str(), std::ifstream::binary);
-  int length, maxval;
+  int  maxval;
   // Get size
   File.seekg(0, File.end);
-  length = File.tellg();
+  int length = File.tellg();
   File.seekg(0, File.beg);
   std::string dummy;
   eat_comment(File);
@@ -40,14 +40,13 @@ bool readPGM(const std::string &filename, std::vector<unsigned char> &image, int
 void AllReader::readSequence(const std::string &filename, std::vector<unsigned char> &volume,
                              int &width, int &height, int &depth) {
   std::vector<std::string> input;
-  std::string inputDir;
   // Determine input directory
   std::string s = filename;
   if (s.find_last_of("/") != -1)
     s.erase(s.find_last_of("/") + 1, s.length());
   else
     s.erase(s.find_last_of("\\") + 1, s.length());
-  inputDir = s;
+  std::string inputDir = s;
 
   s = filename;
   s.erase(0, s.find_last_of('.'));
@@ -57,9 +56,9 @@ void AllReader::readSequence(const std::string &filename, std::vector<unsigned c
     aStream >> depth;
     input.resize(depth);
     for (int i = 0; i < depth; i++) {
-      std::string s;
-      aStream >> s;
-      input.at(i) = inputDir + s;
+      std::string ss;
+      aStream >> ss;
+      input.at(i) = inputDir + ss;
     }
   } else {
     std::cout << "Must pass a txt file as input" << std::endl;

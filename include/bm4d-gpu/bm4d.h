@@ -51,7 +51,6 @@ class BM4D {
     if (d_gathered4dstack != nullptr) {
       checkCudaErrors(cudaFree(d_gathered4dstack));
     }
-    cudaDeviceReset();
   };
 
   std::vector<unsigned char> run_first_step();

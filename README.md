@@ -10,6 +10,27 @@ The majority of the code is licensed under MIT license.
 However, some header files are from NVIDIA and hold a different license, which is included at the beginning of each relevant file.
 
 
+## OpenCV / CLI note
+
+The core CUDA library target, `bm4d-gpu-lib`, does not require OpenCV.
+The optional CLI target, `bm4d-gpu`, does.
+
+If CMake finds an OpenCV package that is incompatible with your active Windows toolchain, configuration now continues and skips the CLI target instead of failing the whole project.
+
+If you want the CLI, point `OpenCV_DIR` to a compatible `OpenCVConfig.cmake` directory. Official OpenCV Windows packs often work only with specific MSVC toolsets and usually do not work with MinGW.
+
+To disable the CLI explicitly:
+
+```bash
+cmake -B build -GNinja -DBUILD_CLI=OFF
+```
+
+To require the CLI and fail fast when OpenCV is unavailable or incompatible:
+
+```bash
+cmake -B build -GNinja -DBUILD_CLI=ON -DBUILD_CLI_STRICT=ON -DOpenCV_DIR="C:/path/to/opencv/build"
+```
+
 ## Working with devcontainer
 
 ### Installing docker

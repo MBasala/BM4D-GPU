@@ -31,12 +31,12 @@ struct uint3float1 {
   __host__ __device__ uint3float1(uint x, uint y, uint z, float val) : x(x), y(y), z(z), val(val) {}
 };
 inline uint3float1 make_uint3float1(uint x, uint y, uint z, float val) {
-  return uint3float1(x, y, z, val);
+  return {x, y, z, val};
 }
-inline uint3float1 make_uint3float1(uint3 c, float val) { return uint3float1(c.x, c.y, c.z, val); }
+inline uint3float1 make_uint3float1(uint3 c, float val) { return {c.x, c.y, c.z, val}; }
 
 void run_block_matching(const uchar *__restrict d_noisy_volume, const uint3 size, const uint3 tsize,
-                        const bm4d_gpu::Parameters params, uint3float1 *d_stacks, uint *d_nstacks,
+                        const bm4d_gpu::Parameters& params, uint3float1 *d_stacks, uint *d_nstacks,
                         const cudaDeviceProp &d_prop);
 // Gather cubes together
 void gather_cubes(const uchar *__restrict img, const uint3 size, const uint3 tsize,
@@ -55,7 +55,7 @@ void run_idct3d(float *d_gathered4dstack, uint gather_stacks_sum, int patch_size
 // Aggregate
 void run_aggregation(float *final_image, const uint3 size, const uint3 tsize,
                      const float *d_gathered4dstack, uint3float1 *d_stacks, uint *d_nstacks,
-                     float *group_weights, const bm4d_gpu::Parameters params, int gather_stacks_sum,
+                     float *group_weights, const bm4d_gpu::Parameters& params, int gather_stacks_sum,
                      const cudaDeviceProp &d_prop);
 
 // Helper functions
@@ -88,4 +88,4 @@ __device__ __host__ __inline__ uint lower_power_2(uint x) {
   return x - (x >> 1);
 }
 
-void debug_kernel(float *tmp);
+void debug_kernel(const float *tmp);

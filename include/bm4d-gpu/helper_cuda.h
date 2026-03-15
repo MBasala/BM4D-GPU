@@ -944,6 +944,12 @@ inline int _ConvertSMVer2Cores(int major, int minor) {
 // end of GPU Architecture definitions
 
 #ifdef __CUDA_RUNTIME_H__
+inline int getCudaDeviceAttribute(int device, cudaDeviceAttr attribute) {
+  int value = 0;
+  checkCudaErrors(cudaDeviceGetAttribute(&value, attribute, device));
+  return value;
+}
+
 // General GPU Device CUDA Initialization
 inline int gpuDeviceInit(int devID) {
   int device_count;
@@ -969,7 +975,8 @@ inline int gpuDeviceInit(int devID) {
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
-  if (deviceProp.computeMode == cudaComputeModeProhibited) {
+  int computeMode = getCudaDeviceAttribute(devID, cudaDevAttrComputeMode);
+  if (computeMode == cudaComputeModeProhibited) {
     fprintf(stderr,
             "Error: device is running in <Compute Mode Prohibited>, no threads can use "
             "::cudaSetDevice().\n");
@@ -1009,8 +1016,9 @@ inline int gpuGetMaxGflopsDeviceId() {
   while (current_device < device_count) {
     cudaGetDeviceProperties(&deviceProp, current_device);
 
+    int computeMode = getCudaDeviceAttribute(current_device, cudaDevAttrComputeMode);
     // If this GPU is not running on Compute Mode prohibited, then we can add it to the list
-    if (deviceProp.computeMode != cudaComputeModeProhibited) {
+    if (computeMode != cudaComputeModeProhibited) {
       if (deviceProp.major > 0 && deviceProp.major < 9999) {
         best_SM_arch = MAX(best_SM_arch, deviceProp.major);
       }
@@ -1033,16 +1041,20 @@ inline int gpuGetMaxGflopsDeviceId() {
   while (current_device < device_count) {
     cudaGetDeviceProperties(&deviceProp, current_device);
 
+    int computeMode = getCudaDeviceAttribute(current_device, cudaDevAttrComputeMode);
     // If this GPU is not running on Compute Mode prohibited, then we can add it to the list
-    if (deviceProp.computeMode != cudaComputeModeProhibited) {
+    if (computeMode != cudaComputeModeProhibited) {
       if (deviceProp.major == 9999 && deviceProp.minor == 9999) {
         sm_per_multiproc = 1;
       } else {
         sm_per_multiproc = _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor);
       }
 
-      unsigned long long compute_perf = (unsigned long long)deviceProp.multiProcessorCount *
-                                        sm_per_multiproc * deviceProp.clockRate;
+      int multiProcessorCount =
+          getCudaDeviceAttribute(current_device, cudaDevAttrMultiProcessorCount);
+      int clockRate = getCudaDeviceAttribute(current_device, cudaDevAttrClockRate);
+      unsigned long long compute_perf = (unsigned long long)multiProcessorCount *
+                                        sm_per_multiproc * clockRate;
 
       if (compute_perf > max_compute_perf) {
         // If we find GPU with SM major > 2, search only these
